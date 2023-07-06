@@ -20,7 +20,7 @@ INPUTS = [
     },
 ]
 
-DRUGS = {
+SUBSTANCES = {
     "Stimulants": {
         "Amfetamine": [
             "Speed",

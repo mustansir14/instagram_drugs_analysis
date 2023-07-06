@@ -1,5 +1,6 @@
 import json
 
+from scrapy.exceptions import DropItem
 from sqlalchemy import select
 
 from instagram_scraper import models
@@ -22,12 +23,16 @@ class InstagramScraperPipeline:
                 },
                 name=item["festival"]["festival"],
             )
-            print(festival)
+            if item["posted_at"].date() < festival.start_date or (
+                festival.end_date and item["posted_at"] > festival.end_date
+            ):
+                raise DropItem("Post date not within festival dates")
             hashtag = models.get_or_create(
                 db, models.Hashtag, None, hashtag=item["hashtag"], festival=festival
             )
 
-            post = db.scalar(select(models.Post).where(models.Post.id == item["id"]))
+            post = db.scalar(select(models.Post).where(
+                models.Post.id == item["id"]))
             exists = True
             if not post:
                 post = models.Post(id=item["id"])

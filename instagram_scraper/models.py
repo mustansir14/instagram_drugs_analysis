@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from sqlalchemy import (BigInteger, Column, DateTime, ForeignKey, Table,
                         create_engine, func)
 from sqlalchemy.orm import (DeclarativeBase, Mapped, Session, mapped_column,
-                            relationship, sessionmaker)
+                            relationship, remote, sessionmaker)
 
 load_dotenv()
 
@@ -61,6 +61,9 @@ class Post(Base):
     hashtags: Mapped[List[Hashtag]] = relationship(
         "Hashtag", secondary="hashtag_post", back_populates="posts"
     )
+    substances: Mapped[List["Substance"]] = relationship(
+        "Substance", secondary="substance_post", back_populates="posts"
+    )
 
 
 class SubstanceType(Base):
@@ -78,22 +81,25 @@ class Substance(Base):
 
     name: Mapped[str] = mapped_column(unique=True)
     substance_type_id: Mapped[int] = mapped_column(ForeignKey("substance_type.id"))
+    nickname_of_substance_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("substance.id")
+    )
 
     substance_type: Mapped[SubstanceType] = relationship(
         "SubstanceType", back_populates="substances"
     )
-    nicknames: Mapped[List["SubstanceNickname"]] = relationship(
-        "SubstanceNickname", back_populates="substance"
+    nicknames: Mapped[List["Substance"]] = relationship("Substance")
+    posts: Mapped[List["Post"]] = relationship(
+        "Post", secondary="substance_post", back_populates="substances"
     )
 
 
-class SubstanceNickname(Base):
-    __tablename__ = "substance_nickname"
-
-    nickname: Mapped[str] = mapped_column(unique=True)
-    substance_id: Mapped[int] = mapped_column(ForeignKey("substance.id"))
-
-    substance: Mapped[Substance] = relationship("Substance", back_populates="nicknames")
+substance_post = Table(
+    "substance_post",
+    Base.metadata,
+    Column("substance_id", ForeignKey("substance.id"), primary_key=True),
+    Column("post_id", ForeignKey("post.id"), primary_key=True),
+)
 
 
 def get_session() -> sessionmaker:
@@ -116,9 +122,8 @@ def get_or_create(
             session.commit()
         except (
             Exception
-        ):  # The actual exception depends on the specific database so we catch all exceptions. This is similar to the official documentation: https://docs.sqlalchemy.org/en/latest/orm/session_transaction.html
+        ) as e:  # The actual exception depends on the specific database so we catch all exceptions. This is similar to the official documentation: https://docs.sqlalchemy.org/en/latest/orm/session_transaction.html
             session.rollback()
-            instance = session.query(model).filter_by(**kwargs).one()
-            return instance
+            raise e
         else:
             return instance
