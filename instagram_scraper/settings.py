@@ -52,10 +52,10 @@ DEFAULT_REQUEST_HEADERS = {
     "sec-fetch-mode": "cors",
     "sec-fetch-site": "same-origin",
     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-    "viewport-width": 926,
-    "x-asbd-id": 129477,
-    "x-ig-app-id": 936619743392459,
-    "x-ig-www-claim": 0,
+    "viewport-width": "926",
+    "x-asbd-id": "129477",
+    "x-ig-app-id": "936619743392459",
+    "x-ig-www-claim": "0",
     "x-requested-with": "XMLHttpRequest"
 }
 
