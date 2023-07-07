@@ -45,7 +45,8 @@ class Hashtag(Base):
     hashtag: Mapped[str] = mapped_column(unique=True)
     festival_id: Mapped[int] = mapped_column(ForeignKey("festival.id"))
 
-    festival: Mapped[Festival] = relationship("Festival", back_populates="hashtags")
+    festival: Mapped[Festival] = relationship(
+        "Festival", back_populates="hashtags")
     posts: Mapped[List["Post"]] = relationship(
         "Post", secondary="hashtag_post", back_populates="hashtags"
     )
@@ -80,7 +81,8 @@ class Substance(Base):
     __tablename__ = "substance"
 
     name: Mapped[str] = mapped_column(unique=True)
-    substance_type_id: Mapped[int] = mapped_column(ForeignKey("substance_type.id"))
+    substance_type_id: Mapped[int] = mapped_column(
+        ForeignKey("substance_type.id"))
     nickname_of_substance_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("substance.id")
     )
@@ -100,12 +102,6 @@ substance_post = Table(
     Column("substance_id", ForeignKey("substance.id"), primary_key=True),
     Column("post_id", ForeignKey("post.id"), primary_key=True),
 )
-
-
-def get_session() -> sessionmaker:
-    engine = create_engine(url=os.getenv("DATABASE_URL"))
-    Base.metadata.create_all(bind=engine)
-    return sessionmaker(bind=engine)
 
 
 def get_or_create(

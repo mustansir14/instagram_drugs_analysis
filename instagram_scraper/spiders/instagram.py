@@ -33,16 +33,22 @@ class InstagramSpider(scrapy.Spider):
             node = edge["node"]
             post["id"] = node["id"]
             post["json"] = node
-            post["caption"] = (
-                node.get("edge_media_to_caption", {})
-                .get("edges", [{}])[0]
-                .get("node", {})
-                .get("text")
-            )
-            post["posted_at"] = datetime.fromtimestamp(node.get("taken_at_timestamp"))
+            try:
+                post["caption"] = (
+                    node.get("edge_media_to_caption", {})
+                    .get("edges", [{}])[0]
+                    .get("node", {})
+                    .get("text")
+                )
+            except IndexError:
+                post["caption"] = ""
+            post["posted_at"] = datetime.fromtimestamp(
+                node.get("taken_at_timestamp"))
             yield post
 
-        # if page_info["has_next_page"]:
-        #     return scrapy.Request(
-        #         f'{self.base_url}{input["hashtag"]}&max_id={page_info["end_cursor"]}'
-        #     )
+        if page_info["has_next_page"]:
+            yield scrapy.Request(
+                url=f'{self.base_url}{response.meta["hashtag"]}&max_id={page_info["end_cursor"]}',
+                meta={
+                    "festival": response.meta["festival"], "hashtag": response.meta["hashtag"]}
+            )
