@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from sqlalchemy.orm import Session
-import os
 import logging
+import os
+
 import sqlalchemy
+from sqlalchemy.orm import Session
+
 from instagram_scraper.models import Base
 
 logger = logging.getLogger()
@@ -14,11 +16,10 @@ class DB(Session):
     __instance = None
 
     def __init__(self) -> None:
-        """ Virtually private constructor. """
+        """Virtually private constructor."""
 
         if DB.__instance is not None:
-            raise Exception(
-                "This class is a singleton, use DB.create()")
+            raise Exception("This class is a singleton, use DB.create()")
         else:
             DB.__instance = self
 

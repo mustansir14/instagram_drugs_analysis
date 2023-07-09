@@ -16,4 +16,12 @@ class PostItem(scrapy.Item):
     json = scrapy.Field()
 
     def __repr__(self):
-        return repr({"id": self['id'], "caption": self['caption'], "posted_at": self['posted_at'], "festival": self["festival"], "hashtag": self["hashtag"]})
+        return repr(
+            {
+                "id": self["id"],
+                "caption": self["caption"],
+                "posted_at": self["posted_at"],
+                "festival": self["festival"],
+                "hashtag": self["hashtag"],
+            }
+        )

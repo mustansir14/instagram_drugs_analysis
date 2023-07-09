@@ -1,14 +1,11 @@
 from typing import List
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
 from tqdm import tqdm
 
 from instagram_scraper import models
-from instagram_scraper.data import SUBSTANCES
-from instagram_scraper.substance_loader import SubstanceLoader
 from instagram_scraper.db import DB
+from instagram_scraper.substance_loader import SubstanceLoader
 
 
 class DrugProcessor:
@@ -16,8 +13,7 @@ class DrugProcessor:
         self.substance_loader = SubstanceLoader()
         self.db = DB.create()
 
-    def process(self, festivals: List[models.Festival] | None = None) -> None:
-
+    def process_all(self, festivals: List[models.Festival] | None = None) -> None:
         if festivals is None:
             festivals = self.db.scalars(select(models.Festival))
 
@@ -39,3 +35,8 @@ class DrugProcessor:
             ]
             if substance.name.lower() in tags and post not in substance.posts:
                 substance.posts.append(post)
+
+
+if __name__ == "__main__":
+    drug_processor = DrugProcessor()
+    drug_processor.process_all()

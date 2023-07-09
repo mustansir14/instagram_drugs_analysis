@@ -4,9 +4,9 @@ from scrapy.exceptions import DropItem
 from sqlalchemy import select
 
 from instagram_scraper import models
-from instagram_scraper.items import PostItem
-from instagram_scraper.drug_processor import DrugProcessor
 from instagram_scraper.db import DB
+from instagram_scraper.drug_processor import DrugProcessor
+from instagram_scraper.items import PostItem
 
 
 class InstagramScraperPipeline:
@@ -15,7 +15,6 @@ class InstagramScraperPipeline:
         self.db = DB.create()
 
     def process_item(self, item: PostItem, spider):
-
         festival = models.get_or_create(
             self.db,
             models.Festival,
@@ -34,8 +33,7 @@ class InstagramScraperPipeline:
             self.db, models.Hashtag, None, hashtag=item["hashtag"], festival=festival
         )
 
-        post = self.db.scalar(select(models.Post).where(
-            models.Post.id == item["id"]))
+        post = self.db.scalar(select(models.Post).where(models.Post.id == item["id"]))
         exists = True
         if not post:
             post = models.Post(id=item["id"])

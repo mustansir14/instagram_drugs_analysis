@@ -10,18 +10,24 @@ from instagram_scraper.items import PostItem
 class InstagramSpider(scrapy.Spider):
     name = "instagram"
     allowed_domains = ["instagram.com"]
-    base_url = "https://www.instagram.com/api/v1/tags/logged_out_web_info/?tag_name="
+    base_url_tag = (
+        "https://www.instagram.com/api/v1/tags/logged_out_web_info/?tag_name="
+    )
+    base_url_location = (
+        "https://www.instagram.com/api/v1/locations/web_info?location_id="
+    )
     ids = []
 
     def start_requests(self):
         for input in INPUTS:
             for hashtag in input["hashtags"]:
                 yield scrapy.Request(
-                    url=self.base_url + hashtag,
+                    url=self.base_url_tag + hashtag,
                     meta={"festival": input, "hashtag": hashtag},
+                    callback=self.parse_hashtag,
                 )
 
-    def parse(self, response: Response):
+    def parse_hashtag(self, response: Response):
         edge_hashtag_to_media = response.json()["data"]["hashtag"][
             "edge_hashtag_to_media"
         ]
@@ -42,13 +48,14 @@ class InstagramSpider(scrapy.Spider):
                 )
             except IndexError:
                 post["caption"] = ""
-            post["posted_at"] = datetime.fromtimestamp(
-                node.get("taken_at_timestamp"))
+            post["posted_at"] = datetime.fromtimestamp(node.get("taken_at_timestamp"))
             yield post
 
         if page_info["has_next_page"]:
             yield scrapy.Request(
-                url=f'{self.base_url}{response.meta["hashtag"]}&max_id={page_info["end_cursor"]}',
+                url=f'{self.base_url_tag}{response.meta["hashtag"]}&max_id={page_info["end_cursor"]}',
                 meta={
-                    "festival": response.meta["festival"], "hashtag": response.meta["hashtag"]}
+                    "festival": response.meta["festival"],
+                    "hashtag": response.meta["hashtag"],
+                },
             )

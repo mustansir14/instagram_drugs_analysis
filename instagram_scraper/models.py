@@ -1,12 +1,10 @@
-import os
 from datetime import date, datetime
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 from dotenv import load_dotenv
-from sqlalchemy import (BigInteger, Column, DateTime, ForeignKey, Table,
-                        create_engine, func)
+from sqlalchemy import BigInteger, Column, DateTime, ForeignKey, Table, func
 from sqlalchemy.orm import (DeclarativeBase, Mapped, Session, mapped_column,
-                            relationship, remote, sessionmaker)
+                            relationship)
 
 load_dotenv()
 
@@ -45,8 +43,7 @@ class Hashtag(Base):
     hashtag: Mapped[str] = mapped_column(unique=True)
     festival_id: Mapped[int] = mapped_column(ForeignKey("festival.id"))
 
-    festival: Mapped[Festival] = relationship(
-        "Festival", back_populates="hashtags")
+    festival: Mapped[Festival] = relationship("Festival", back_populates="hashtags")
     posts: Mapped[List["Post"]] = relationship(
         "Post", secondary="hashtag_post", back_populates="hashtags"
     )
@@ -81,8 +78,7 @@ class Substance(Base):
     __tablename__ = "substance"
 
     name: Mapped[str] = mapped_column(unique=True)
-    substance_type_id: Mapped[int] = mapped_column(
-        ForeignKey("substance_type.id"))
+    substance_type_id: Mapped[int] = mapped_column(ForeignKey("substance_type.id"))
     nickname_of_substance_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("substance.id")
     )

@@ -1,4 +1,3 @@
-from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
 from instagram_scraper import models
@@ -7,7 +6,6 @@ from instagram_scraper.db import DB
 
 
 class SubstanceLoader:
-
     def __init__(self) -> None:
         self.db = DB.create()
         self.load_substances()
