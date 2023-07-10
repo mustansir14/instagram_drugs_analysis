@@ -58,4 +58,5 @@ class InstagramSpider(scrapy.Spider):
                     "festival": response.meta["festival"],
                     "hashtag": response.meta["hashtag"],
                 },
+                callback=self.parse_hashtag
             )
