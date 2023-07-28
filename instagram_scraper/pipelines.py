@@ -15,16 +15,7 @@ class InstagramScraperPipeline:
         self.db = DB.create()
 
     def process_item(self, item: PostItem, spider):
-        festival = models.get_or_create(
-            self.db,
-            models.Festival,
-            {
-                "name": item["festival"]["festival"],
-                "start_date": item["festival"]["start_date"],
-                "end_date": item["festival"]["end_date"],
-            },
-            name=item["festival"]["festival"],
-        )
+        festival = self.get_festival(item)
         if item["posted_at"].date() < festival.start_date or (
             festival.end_date and item["posted_at"] > festival.end_date
         ):
@@ -49,3 +40,25 @@ class InstagramScraperPipeline:
         self.drug_processor.check_post_for_substances(post)
 
         return item
+
+    def get_festival(self, item: PostItem) -> models.Festival:
+        festival = models.get_or_create(
+            self.db,
+            models.Festival,
+            {
+                "name": item["festival"]["festival"],
+                "start_date": item["festival"]["start_date"],
+                "end_date": item["festival"]["end_date"],
+            },
+            name=item["festival"]["festival"],
+        )
+
+        # update festival if needed
+        if festival.start_date != item["festival"]["start_date"]:
+            festival.start_date = item["festival"]["start_date"]
+            festival.save()
+        if festival.end_date != item["festival"]["end_date"]:
+            festival.end_date = item["festival"]["end_date"]
+            festival.save()
+
+        return festival

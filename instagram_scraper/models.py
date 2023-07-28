@@ -3,8 +3,7 @@ from typing import List, Optional
 
 from dotenv import load_dotenv
 from sqlalchemy import BigInteger, Column, DateTime, ForeignKey, Table, func
-from sqlalchemy.orm import (DeclarativeBase, Mapped, Session, mapped_column,
-                            relationship)
+from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, relationship
 
 load_dotenv()
 

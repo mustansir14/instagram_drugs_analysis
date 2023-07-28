@@ -1,3 +1,4 @@
+import random
 from datetime import datetime
 
 import scrapy
@@ -13,19 +14,25 @@ class InstagramSpider(scrapy.Spider):
     base_url_tag = (
         "https://www.instagram.com/api/v1/tags/logged_out_web_info/?tag_name="
     )
-    base_url_location = (
-        "https://www.instagram.com/api/v1/locations/web_info?location_id="
-    )
-    ids = []
 
     def start_requests(self):
+        random.shuffle(INPUTS)
         for input in INPUTS:
-            for hashtag in input["hashtags"]:
-                yield scrapy.Request(
-                    url=self.base_url_tag + hashtag,
-                    meta={"festival": input, "hashtag": hashtag},
-                    callback=self.parse_hashtag,
-                )
+            for hashtag_dict in input["hashtags"]:
+                generated_hashtags = []
+                if hashtag_dict["include_without_suffix"]:
+                    generated_hashtags.append(hashtag_dict["name"])
+                if hashtag_dict["suffix_start"]:
+                    for suffix in range(
+                        hashtag_dict["suffix_start"], hashtag_dict["suffix_end"] + 1
+                    ):
+                        generated_hashtags.append(f"{hashtag_dict['name']}{suffix}")
+                for hashtag in generated_hashtags:
+                    yield scrapy.Request(
+                        url=self.base_url_tag + hashtag,
+                        meta={"festival": input, "hashtag": hashtag},
+                        callback=self.parse_hashtag,
+                    )
 
     def parse_hashtag(self, response: Response):
         edge_hashtag_to_media = response.json()["data"]["hashtag"][
@@ -58,5 +65,5 @@ class InstagramSpider(scrapy.Spider):
                     "festival": response.meta["festival"],
                     "hashtag": response.meta["hashtag"],
                 },
-                callback=self.parse_hashtag
+                callback=self.parse_hashtag,
             )
