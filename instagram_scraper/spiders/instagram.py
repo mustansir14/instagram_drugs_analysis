@@ -16,7 +16,6 @@ class InstagramSpider(scrapy.Spider):
     )
 
     def start_requests(self):
-        random.shuffle(INPUTS)
         for input in INPUTS:
             for hashtag_dict in input["hashtags"]:
                 generated_hashtags = []

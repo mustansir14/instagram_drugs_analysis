@@ -6,6 +6,11 @@
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BOT_NAME = "instagram_scraper"
 
@@ -70,9 +75,14 @@ DEFAULT_REQUEST_HEADERS = {
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-# DOWNLOADER_MIDDLEWARES = {
-#    "instagram_scraper.middlewares.InstagramScraperDownloaderMiddleware": 543,
-# }
+DOWNLOADER_MIDDLEWARES = (
+    {
+        "instagram_scraper.middlewares.CustomProxyMiddleware": 350,
+        "scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware": 400,
+    }
+    if int(os.getenv("USE_PROXY"))
+    else None
+)
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
